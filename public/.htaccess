@@ -1,0 +1,13 @@
+RewriteEngine On
+RewriteBase /
+
+# This forces the final slash (/) at the end of the URL and saved my life too.
+RewriteCond %{REQUEST_URI} !(/$|\.) 
+RewriteRule (.*) %{REQUEST_URI}/ [R=301,L]
+
+RewriteCond %{REQUEST_FILENAME} !/(css)/
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^(.+?)/?$ index.php [L,QSA]
+
+# This saved my life: https://stackoverflow.com/questions/20979416/access-relative-css-js-files-with-htaccess-rewrite-rule

@@ -1,0 +1,20 @@
+{
+    "name": "srbrunoferreira/bf-seguros",
+    "description": "Management system for the fictional company BF Insurance.",
+    "type": "project",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Bruno Ferreira",
+            "email": "srbrunoferreira@outlook.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "autoload": {
+        "psr-4": {
+            "App\\": "app/",
+            "Api\\": "api/"
+        }
+    },
+    "require": {}
+}

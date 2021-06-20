@@ -1,0 +1,3 @@
+<?php
+
+// Will keep the dashboard, login screen...
