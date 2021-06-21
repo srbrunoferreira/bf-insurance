@@ -4,8 +4,6 @@ A insurence company called BF Seguros had asked you to make a managament system 
 
 The **system must be done in a PHP API** which will get the data from the database which must be done in MySQL.
 
-O **front-end deve feito com o framework Materialize e JavaScript**, que intermediará a comunicação entre usuário e back-end.
-
 The **front-end must be done with the Materialize framework and JavaScript** that will mediate the communication between the user and the back-end.
 
 ## System screens
