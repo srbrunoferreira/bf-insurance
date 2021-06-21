@@ -5,11 +5,9 @@ require_once '../app/config.php';
 
 use \App\Http\Router;
 
-Router::get('/', function() {});
-Router::get('api/{userId}/{comeback}/', function() {});
+Router::init();
+
+require_once '../routes/web.php';
+require_once '../routes/api.php';
 
 Router::run();
-
-echo '<pre>';
-print_r(Router::$routes);
-echo '</pre><hr>';

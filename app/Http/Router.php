@@ -2,7 +2,8 @@
 
 namespace App\Http;
 
-use OpenSSLCertificateSigningRequest;
+use Closure;
+use Exception;
 
 final class Router
 {
@@ -12,13 +13,66 @@ final class Router
      */
     public static array $routes;
 
+    /**
+     * Stores a instance of Resquest class.
+     * @var Request
+     */
+    private static Request $request;
+
+    /**
+     * Replaces the __constructor function.
+     */
+    public static function init(): void
+    {
+        self::$request = new Request();
+    }
+
     public static function run(): void
     {
         $route = self::getRoute();
+        $args = isset($route['params']) ? self::getParams($route['pattern'], $route['params']) : [];
+
+        call_user_func_array($route['action'], $args);
     }
 
-    public static function getRoute(): void
-    {}
+    /**
+     * Matches the param values passed through the URI with their names in the route.
+     * @param string $pattern
+     * @param array $paramNames
+     * @return array
+     */
+    public static function getParams(string $pattern, array $paramNames): array
+    {
+        $uri = self::$request->getUri();
+
+        preg_match($pattern, $uri, $matches);
+        unset($matches[0]);
+        $paramsValues = $matches;
+
+        $params = array_combine($paramNames, $paramsValues);
+
+        return $params;
+    }
+
+    /**
+     * Returns the current route information if matched.
+     * @return array
+     */
+    public static function getRoute(): array
+    {
+        $requestUri = self::$request->getUri();
+        $requestHttpMethod = self::$request->getHttpMethod();
+
+        foreach (self::$routes as $route => $methods) {
+            if (preg_match($route, $requestUri)) {
+                if (isset($methods[$requestHttpMethod])) {
+                    return array_merge(['pattern' => $route], $methods[$requestHttpMethod]);
+                }
+                throw new Exception('Método não é permitido', 405);
+            }
+        }
+        throw new Exception("URL não encontrada.", 404);
+    }
 
     /**
      * Generic method that insert the routes into the system.
@@ -34,7 +88,7 @@ final class Router
         // Checks if exists any {string} in the $route string.
         if (preg_match_all($routeVarPattern, $route, $matches)) {
             $matches = array_values($matches[0]);
-            $route = str_replace($matches, '(.*?)', $route);
+            $route = str_replace($matches, '(\S*?)', $route);
             $params = str_replace(['{', '}'], '', $matches);
         }
 
