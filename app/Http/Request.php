@@ -11,7 +11,10 @@ final class Request
     public static function getUri(): string
     {
         $uri = $_SERVER['REQUEST_URI'];
-        return strpos($uri, 'api')? rtrim($uri, '/') : $uri;
+        $uri = strpos($uri, 'api')? rtrim($uri, '/') : $uri;
+        $uri = explode('?', $uri)[0];
+
+        return $uri;
     }
 
     /**
@@ -21,5 +24,14 @@ final class Request
     public static function getHttpMethod(): string
     {
         return $_SERVER['REQUEST_METHOD'];
+    }
+
+    /**
+     * Return the complete url that appears in the browser.
+     * @return string
+     */
+    public static function getCompleteUrl(): string
+    {
+        return $_SERVER['SERVER_NAME'] . $_SERVER['REQUEST_URI'];
     }
 }

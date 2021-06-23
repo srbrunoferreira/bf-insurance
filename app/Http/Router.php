@@ -55,6 +55,9 @@ final class Router
         $requestHttpMethod = Request::getHttpMethod();
 
         foreach (self::$routes as $route => $methods) {
+            echo '<pre>';
+            print_r($requestUri);
+            echo '</pre><hr>';
             if (preg_match($route, $requestUri)) {
                 if (isset($methods[$requestHttpMethod])) {
                     return array_merge(['pattern' => $route], $methods[$requestHttpMethod]);

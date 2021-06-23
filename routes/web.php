@@ -1,7 +1,21 @@
 <?php
 
 use App\Http\Router;
+use App\Controller\Pages\Login;
+use App\Controller\Pages\PagesController;
 
-Router::get('/', function() {echo '<h1>HOME PAGE</h1>'; });
-Router::get('/dashboard/', function() {echo '<h1>DASHBOARD PAGE</h1>'; });
-Router::get('/register-user/', function() {echo '<h1>REGISTER USER PAGE</h1>'; });
+Router::get('/', function() {
+
+});
+
+Router::get('/login/', function() {
+    Login::getLoginPage();
+});
+
+Router::get('/dashboard/', function() {
+
+});
+
+Router::get('/register-user/', function() {
+
+});
