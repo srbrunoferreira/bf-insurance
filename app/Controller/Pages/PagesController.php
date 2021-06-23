@@ -1,3 +1,6 @@
 <?php
 
-// Will keep the dashboard, login screen...
+final class PagesController
+{
+    
+}

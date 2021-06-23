@@ -2,8 +2,8 @@
 
 namespace App\Http;
 
-use Closure;
-use Exception;
+use App\Http\Request;
+use ReflectionFunction;
 
 final class Router
 {
@@ -13,26 +13,12 @@ final class Router
      */
     public static array $routes;
 
-    /**
-     * Stores a instance of Resquest class.
-     * @var Request
-     */
-    private static Request $request;
-
-    /**
-     * Replaces the __constructor function.
-     */
-    public static function init(): void
-    {
-        self::$request = new Request();
-    }
-
     public static function run(): void
     {
         $route = self::getRoute();
-        $args = isset($route['params']) ? self::getParams($route['pattern'], $route['params']) : [];
+        $params = isset($route['paramNames']) ? self::getParams($route) : [];
 
-        call_user_func_array($route['action'], $args);
+        call_user_func_array($route['action'], $params);
     }
 
     /**
@@ -41,17 +27,22 @@ final class Router
      * @param array $paramNames
      * @return array
      */
-    public static function getParams(string $pattern, array $paramNames): array
+    public static function getParams(array $route): array
     {
-        $uri = self::$request->getUri();
+        $uri = Request::getUri();
 
-        preg_match($pattern, $uri, $matches);
-        unset($matches[0]);
-        $paramsValues = $matches;
+        preg_match($route['pattern'], $uri, $paramValues);
+        unset($paramValues[0]);
+        $params = array_combine($route['paramNames'], $paramValues);
 
-        $params = array_combine($paramNames, $paramsValues);
+        $routeActionReflection = new ReflectionFunction($route['action']);
+        // Mathces the params with their order in the function
+        foreach ($routeActionReflection->getParameters() as $param) {
+            $paramName = $param->getName();
+            $args[$paramName] = $params[$paramName]?? '';
+        }
 
-        return $params;
+        return $args;
     }
 
     /**
@@ -60,18 +51,18 @@ final class Router
      */
     public static function getRoute(): array
     {
-        $requestUri = self::$request->getUri();
-        $requestHttpMethod = self::$request->getHttpMethod();
+        $requestUri = Request::getUri();
+        $requestHttpMethod = Request::getHttpMethod();
 
         foreach (self::$routes as $route => $methods) {
             if (preg_match($route, $requestUri)) {
                 if (isset($methods[$requestHttpMethod])) {
                     return array_merge(['pattern' => $route], $methods[$requestHttpMethod]);
                 }
-                throw new Exception('Método não é permitido', 405);
+                throw new \Exception('Método não é permitido', 405);
             }
         }
-        throw new Exception("URL não encontrada.", 404);
+        throw new \Exception("URL não encontrada.", 404);
     }
 
     /**
@@ -97,7 +88,7 @@ final class Router
 
         self::$routes[$route][$httpMethod]['action'] = $action;
         if (isset($params)) {
-            self::$routes[$route][$httpMethod]['params'] = $params;
+            self::$routes[$route][$httpMethod]['paramNames'] = $params;
         }
     }
 
