@@ -39,6 +39,9 @@ final class Response
         self::doResponse();
     }
 
+    /**
+     * Sends the response to the client.
+     */
     private static function doResponse(): void
     {
         self::sendHeaders();

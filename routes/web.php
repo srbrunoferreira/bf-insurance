@@ -1,9 +1,7 @@
 <?php
 
 use App\Http\Routing\Router;
-use App\Http\Routing\Response;
 use App\Controller\Pages\Login;
-use App\Controller\Pages\PagesController;
 
 Router::get('/', function () {
 Router::redirect('/dashboard/');
