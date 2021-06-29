@@ -7,6 +7,13 @@ use App\Controller\Pages\View;
 
 final class Dashboard extends View
 {
-    public static function getPage()
-    {}
+    public static function getLoginPage()
+    {
+        $content = parent::render('login/login');
+        echo parent::getPage('Dashboard - BF Insurance', [
+            'pageDescription' => 'Dashboard - BF Insurance',
+            'pageContent' => $content,
+        ], false
+        );
+    }
 }

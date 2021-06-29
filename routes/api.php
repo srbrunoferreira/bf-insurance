@@ -1,8 +1,8 @@
 <?php
 
-use App\Http\Router;
+use App\Http\Routing\Router;
+use App\Http\Routing\Response;
 
 Router::get('/api/user/{username}/{userId}', function($userId, $username) {
-    echo '<h1>API | GET USER</h1>';
-    echo 'USERID: ' . $userId . ' | ' . 'USERNAME: ' . $username;
+    Response::send(['error' => 'Request timeout'], 409, 'application/json');
 });

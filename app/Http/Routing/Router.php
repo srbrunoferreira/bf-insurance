@@ -1,11 +1,14 @@
 <?php
 
-namespace App\Http;
+namespace App\Http\Routing;
 
-use App\Http\Request;
-use ReflectionFunction;
+use App\Http\Kernel;
+use App\Http\Routing\Request;
+use App\Http\Middleware\ApiAuth;
+use App\Controller\Pages\Error;
+use App\Http\Routing\Response;
 
-final class Router
+final class Router extends Kernel
 {
     /**
      * Stores the routes.
@@ -13,8 +16,27 @@ final class Router
      */
     public static array $routes;
 
+    /**
+     * Stores the middlewares.
+     * @var array
+     */
+    private static array $middlewares;
+
+    /**
+     * Stores the host domain.
+     * @var string
+     */
+    private static string $host;
+
+    private function init(): void
+    {
+        self::$host = $_SERVER['HTTPS'] ? 'https://' : 'http://';
+        self::$host .= $_SERVER['HTTP_HOST'];
+    }
+
     public static function run(): void
     {
+        self::init();
         $route = self::getRoute();
         $params = isset($route['paramNames']) ? self::getParams($route) : [];
 
@@ -35,11 +57,12 @@ final class Router
         unset($paramValues[0]);
         $params = array_combine($route['paramNames'], $paramValues);
 
-        $routeActionReflection = new ReflectionFunction($route['action']);
-        // Mathces the params with their order in the function
+        $routeActionReflection = new \ReflectionFunction($route['action']);
+
+        // Matches the params with their order in the function
         foreach ($routeActionReflection->getParameters() as $param) {
             $paramName = $param->getName();
-            $args[$paramName] = $params[$paramName]?? '';
+            $args[$paramName] = $params[$paramName] ?? '';
         }
 
         return $args;
@@ -55,17 +78,32 @@ final class Router
         $requestHttpMethod = Request::getHttpMethod();
 
         foreach (self::$routes as $route => $methods) {
-            echo '<pre>';
-            print_r($requestUri);
-            echo '</pre><hr>';
             if (preg_match($route, $requestUri)) {
                 if (isset($methods[$requestHttpMethod])) {
                     return array_merge(['pattern' => $route], $methods[$requestHttpMethod]);
                 }
-                throw new \Exception('Método não é permitido', 405);
+
+                Response::send(Error::notFound(), 405); // Request method not found.
+                exit;
             }
         }
-        throw new \Exception("URL não encontrada.", 404);
+
+        Response::send(Error::notFound(), 404); // Page not found.
+        exit;
+    }
+
+    /**
+     *
+     */
+    public static function middleware(): void
+    {
+        // return self;
+    }
+
+    public static function redirect(string $to): void
+    {
+        http_response_code(301);
+        header('Location: ' . self::$host . $to);
     }
 
     /**

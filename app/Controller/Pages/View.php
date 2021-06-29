@@ -2,13 +2,20 @@
 
 namespace App\Controller\Pages;
 
-use  App\Http\Request;
+use  App\Http\Routing\Request;
 
 abstract class View
 {
     private static string $defaultPageMetaRobots = 'index, follow';
     private static string $defaultPageMetaKeywords = 'gerenciamento, sistema';
 
+    /**
+     * Returns the view with its elements renderized.
+     * @param string $title
+     * @param array $customFields
+     * @param bool $useDefaultHeaderAndFooter
+     * @return string
+     */
     protected static function getPage(string $title, array $customFields, bool $useDefaultHeaderAndFooter = true): string
     {
         if ($useDefaultHeaderAndFooter) {
@@ -19,6 +26,7 @@ abstract class View
             $customFields['pageFooter'] = '';
         }
 
+        $customFields['pageTitle'] = $title;
         $customFields['pageRobots'] = $customFields['pageRobots'] ?? self::$defaultPageMetaRobots;
         $customFields['pageKeywords'] = $customFields['pageKeywords'] ?? self::$defaultPageMetaKeywords;
         $customFields['pageCanonical'] = Request::getCompleteUrl();
@@ -26,6 +34,12 @@ abstract class View
         return self::render('template/layout', $customFields);
     }
 
+    /**
+     * Replaces the short tags {{ tag }} for their values in the view.
+     * @param string $view
+     * @param array $customFields
+     * @return string
+     */
     protected static function render(string $view, array $customFields = []): string
     {
         $viewContent = self::getViewContent($view);
@@ -38,6 +52,11 @@ abstract class View
         return str_replace($customFieldNames, array_values($customFields), $viewContent);
     }
 
+    /**
+     * Returns the template view.
+     * @param string $viewPath
+     * @return string
+     */
     private static function getViewContent(string $viewPath): string
     {
         $file = '../resources/views/' . $viewPath . '.html';
