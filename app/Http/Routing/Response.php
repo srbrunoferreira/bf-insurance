@@ -30,30 +30,14 @@ final class Response
      * @param int $httpCode
      * @param string $contentType
      */
-    public static function send($content = '', int $httpCode = 200, string $contentType = 'text/html'): void
+    public static function send($content, int $httpCode = 200, string $contentType = 'text/html'): void
     {
         self::$httpCode = $httpCode;
         self::$content = $content;
         self::setContentType($contentType);
 
-        self::doResponse();
-    }
-
-    /**
-     * Sends the response to the client.
-     */
-    private static function doResponse(): void
-    {
         self::sendHeaders();
-
-        switch (self::$contentType) {
-            case 'text/html':
-                echo self::$content;
-                break;
-            case 'application/json':
-                echo json_encode(self::$content);
-                break;
-        }
+        echo self::$content;
     }
 
     /**

@@ -4,7 +4,7 @@ use App\Http\Routing\Router;
 use App\Controller\Pages\Login;
 
 Router::get('/', function () {
-Router::redirect('/dashboard/');
+    Router::redirect('/dashboard/');
 });
 
 Router::get('/login/', function () {
@@ -13,7 +13,7 @@ Router::get('/login/', function () {
 
 Router::get('/dashboard/', function () {
     echo '<h1>Dashboard</h1>';
-});
+}, ['auth']);
 
 Router::get('/register-user/', function () {
 });

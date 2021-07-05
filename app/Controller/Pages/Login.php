@@ -11,8 +11,10 @@ final class Login extends View
     public static function getLoginPage()
     {
         $content = parent::render('login/login');
-        $page = parent::getPage('Login - BF Insurance',
-            ['pageDescription' => 'Página de login destinada apenas a funcionários da BF Insurance.', 'pageContent' => $content],
+        $page = parent::getPage('Login - BF Insurance', [
+            'pageDescription' => 'Página de login destinada apenas a funcionários da BF Insurance.',
+            'pageContent' => $content
+        ],
             false
         );
 

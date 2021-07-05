@@ -3,8 +3,8 @@
 namespace App\Http\Routing;
 
 use App\Http\Kernel;
-use App\Http\Routing\Request;
 use App\Controller\Pages\Error;
+use App\Http\Routing\Request;
 use App\Http\Routing\Response;
 
 final class Router extends Kernel
@@ -13,9 +13,33 @@ final class Router extends Kernel
     public static function run(): void
     {
         $route = self::getRoute();
+
+        $routeMiddleware = !empty($route['middlewares']) ? $route['middlewares']: [];
+        self::runMiddlewares($routeMiddleware);
+
         $params = isset($route['paramNames']) ? self::getParamsFromUri($route) : [];
 
         call_user_func_array($route['action'], $params);
+    }
+
+    /**
+     * Runs all the middlewware the route has.
+     *
+     * @param array $middlewares
+     */
+    private static function runMiddlewares(array $middlewares = []): void
+    {
+        foreach (parent::$globalMiddlewares as $middleware) {
+            $realMiddleware = parent::$middlewaresList[$middleware];
+            (new $realMiddleware)->run();
+        }
+
+        if (!empty($middlewares)) {
+            foreach ($middlewares as $middleware) {
+                $realMiddleware = parent::$middlewaresList[$middleware];
+                (new $realMiddleware)->run();
+            }
+        }
     }
 
     /**

@@ -2,10 +2,6 @@
 
 namespace App\Http;
 
-use App\Controller\Pages\Error;
-use App\Http\Routing\Request;
-use App\Http\Routing\Response;
-
 abstract class Kernel
 {
     /**
@@ -14,12 +10,25 @@ abstract class Kernel
     protected static array $routes;
 
     /**
+     * Stores the middlewares with fliendly key name.
+     */
+    protected static array $middlewaresList = [
+        'auth' => \App\Http\Middleware\Auth::class,
+        'api.auth' => \App\Http\Middleware\ApiAuth::class
+    ];
+
+    /**
+     * Stores the middlewares that are executed every request.
+     */
+    protected static array $globalMiddlewares = [];
+
+    /**
      * Generic method that insert the routes into the system.
      * @param string $httpMethod
      * @param string $route
      * @param \Closure $action
      */
-    private static function addRoute(string $httpMethod, string $route, \Closure $action): void
+    private static function addRoute(string $httpMethod, string $route, \Closure $action, $middleware): void
     {
         $routeVarPattern = '/{.*?}/';
 
@@ -35,9 +44,12 @@ abstract class Kernel
         $route = '/^' . str_replace('/', '\/', $route) . '$/';
 
         self::$routes[$route][$httpMethod]['action'] = $action;
-        if (isset($params)) {
+
+        if (isset($params))
             self::$routes[$route][$httpMethod]['paramNames'] = $params;
-        }
+
+        if (!empty($middleware))
+            self::$routes[$route][$httpMethod]['middlewares'] = $middleware;
     }
 
     /**
@@ -45,9 +57,9 @@ abstract class Kernel
      * @param string $route
      * @param \Closure $action
      */
-    public static function get(string $route, \Closure $action): void
+    public static function get(string $route, \Closure $action, array $middleware = []): void
     {
-        self::addRoute('GET', $route, $action);
+        self::addRoute('GET', $route, $action, $middleware);
     }
 
     /**
@@ -55,9 +67,9 @@ abstract class Kernel
      * @param string $route
      * @param \Closure $action
      */
-    public static function put(string $route, \Closure $action): void
+    public static function put(string $route, \Closure $action, array $middleware = []): void
     {
-        self::addRoute('PUT', $route, $action);
+        self::addRoute('PUT', $route, $action, $middleware);
     }
 
     /**
@@ -65,9 +77,9 @@ abstract class Kernel
      * @param string $route
      * @param \Closure $action
      */
-    public static function post(string $route, \Closure $action): void
+    public static function post(string $route, \Closure $action, array $middleware = []): void
     {
-        self::addRoute('POST', $route, $action);
+        self::addRoute('POST', $route, $action, $middleware);
     }
 
     /**
@@ -75,8 +87,8 @@ abstract class Kernel
      * @param string $route
      * @param \Closure $action
      */
-    public static function delete(string $route, \Closure $action): void
+    public static function delete(string $route, \Closure $action, array $middleware = []): void
     {
-        self::addRoute('DELETE', $route, $action);
+        self::addRoute('DELETE', $route, $action, $middleware);
     }
 }
